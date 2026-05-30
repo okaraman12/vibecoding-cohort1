@@ -10,6 +10,28 @@ load_dotenv()
 client = OpenAI() if os.environ.get("OPENAI_API_KEY") else None
 
 
+def text_complete(system: str, user: str, openai_model: str = "gpt-4.1-mini",
+                  claude_model: str = "claude-haiku-4-5",
+                  temperature: float = 0.3) -> str:
+    """Provider-agnostic one-shot text helper used by tools.
+
+    Routes to OpenAI when OPENAI_API_KEY is configured, otherwise to Claude
+    (via Keychain OAuth or ANTHROPIC_API_KEY).
+    """
+    if client is not None:
+        resp = client.chat.completions.create(
+            model=openai_model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            temperature=temperature,
+        )
+        return resp.choices[0].message.content or ""
+    import llm_anthropic
+    return llm_anthropic.simple_text(system, user, model=claude_model, temperature=temperature)
+
+
 def stream_llm(
     system_instructions: str,
     user_prompt: str,

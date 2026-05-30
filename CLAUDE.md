@@ -42,7 +42,7 @@ Flask backend + vanilla JS frontend. Üç ayrı sayfa sunar:
 |---|---|---|
 | LLM Arayüzü | `/` | Tek seferlik, hafızasız LLM çağrısı |
 | Asistan | `/asistan` | Conversation history tutan sohbet arayüzü |
-| Kodlama Agenti | `/agent` | Tool-calling agentic loop arayüzü |
+| Araç Seçici | `/agent` | Tool-calling agent — car advisor (pick_car, compare_specs, estimate_ownership_cost, +deploy_army bonus) |
 
 ### Dosya Sorumlulukları
 
@@ -51,7 +51,10 @@ Flask backend + vanilla JS frontend. Üç ayrı sayfa sunar:
 - **`asistan.py`** — `Asistan` sınıfı. Conversation history tutan, `sohbet()` ve `stream_sohbet()` metodları.
 - **`agent.py`** — `Agent` sınıfı. Tool-calling agentic loop; `calistir()` generator'ı her adımda event dict'i yield eder. Tool'lar: `terminal`, `dosya_oku`, `dosya_yaz`, ve `tools/` paketinden gelen `deploy_army`.
 - **`tools/__init__.py`** — Özel araç paketi. `TOOL_DEFINITIONS` ve `TOOL_FUNCTIONS` sözlüklerini dışa açar; `agent.py` bunları `TOOLS` / `_TOOL_MAP`'e merge eder.
-- **`tools/deploy_army.py`** — Bir görevi alt görevlere ayırır, rol atar (Lead Architect, Senior Engineer, Code Reviewer, Security Analyst, QA Specialist), karmaşıklık ve risk değerlendirmesi içeren JSON deployment plan döner. `execute=true` ise `agent_runner` üzerinden alt görevleri gerçekten çalıştırır.
+- **`tools/car_picker.py`** — `pick_car`: bütçe + kullanım amacı + tercihler → 3-5 sıralı araç adayı (kategori badge, fit skoru, artı/eksi, fiyat tahmini). LLM ile JSON üretir, regex + coercion ile temizlenir.
+- **`tools/compare_specs.py`** — `compare_specs`: iki modeli yan yana karşılaştırır (motor, beygir, yakıt, 0-100, kargo, koltuk, güvenlik, MSRP) + per-row winner.
+- **`tools/estimate_ownership_cost.py`** — `estimate_ownership_cost`: deterministik 5 yıllık TCO hesabı (amortisman, yakıt, sigorta, bakım). LLM çağrısı yok, kategori-bazlı heuristic tablodan formül.
+- **`tools/deploy_army.py`** — Bonus tool: bir görevi alt görevlere ayırır, rol atar (Lead Architect, Senior Engineer, Code Reviewer, Security Analyst, QA Specialist), karmaşıklık ve risk değerlendirmesi içeren JSON deployment plan döner. `execute=true` ise `agent_runner` üzerinden alt görevleri gerçekten çalıştırır.
 - **`tools/agent_runner.py`** — Agent Army'den uyarlanmış subprocess runner. `EXECUTION_MODE` ortam değişkenine göre `simulation` (default, güvenli), `real` (Claude Code CLI'yi `builds/{task_id}/` cwd'de çalıştırır) veya `sandbox` (Docker container spec) modunda çalışır.
 - **`tools/security.py`** — Env allowlist + Docker container spec builder (read-only root, `--network=none`, mem/cpu/PID limit). `sandbox` mode için hazır; Docker SDK çağrısı bu harness'ta kasıtlı olarak bağlanmadı.
 - **`tools/audit_log.py`** — `builds/audit.log` dosyasına JSONL append. Her execution için: rol, mode, env key **adları** (değerleri asla), süre, exit code, status.

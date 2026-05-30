@@ -13,7 +13,7 @@ import os
 import re
 import uuid
 
-from llm import client
+from llm import text_complete
 from tools import agent_runner
 
 ROLES = [
@@ -109,15 +109,7 @@ def _coerce_plan(task: str, raw: str) -> dict:
 
 
 def _decompose(task: str) -> dict:
-    resp = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[
-            {"role": "system", "content": _DECOMP_SYSTEM},
-            {"role": "user", "content": task},
-        ],
-        temperature=0.2,
-    )
-    return _coerce_plan(task, resp.choices[0].message.content or "")
+    return _coerce_plan(task, text_complete(_DECOMP_SYSTEM, task, temperature=0.2))
 
 
 def run(task: str, execute: bool = False) -> str:

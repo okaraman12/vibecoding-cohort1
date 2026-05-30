@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kodlama Agenti</title>
+  <title>Araç Seçici</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -475,8 +475,8 @@
 <body>
   <div class="card">
     <div class="header">
-      <h1>Kodlama Agenti</h1>
-      <span class="badge">TOOL USE LOOP</span>
+      <h1>Araç Seçici</h1>
+      <span class="badge">CAR ADVISOR · TOOL USE LOOP</span>
     </div>
 
     <!-- Kurulum -->
@@ -501,7 +501,7 @@
       </div>
       <div>
         <label for="system">System Instructions</label>
-        <textarea id="system">Sen bir kodlama agentisin. Görevleri tamamlamak için terminal, dosya okuma ve dosya yazma araçlarını kullan. Türkçe yanıt ver.</textarea>
+        <textarea id="system">Sen bir profesyonel araç danışmanısın. Kullanıcının bütçesine, kullanım amacına ve tercihlerine göre araç önerileri yapmak için pick_car, compare_specs ve estimate_ownership_cost araçlarını kullan. Kararını araçların döndürdüğü yapısal verilere dayandır. Türkçe yanıt ver. (Bonus: deploy_army aracı mevcut platform mimarisi için saklanmıştır.)</textarea>
       </div>
       <button id="baslatBtn" onclick="agentBaslat()">Agenti Başlat</button>
     </div>
@@ -514,12 +514,12 @@
       </div>
 
       <div id="messages">
-        <span class="empty-hint">Agent hazır. Bir görev verin.</span>
+        <span class="empty-hint">Araç danışmanı hazır. Bütçenizi ve ihtiyacınızı yazın.</span>
       </div>
 
       <div class="input-row">
-        <textarea id="userPrompt" placeholder="Görevi yazın... (Shift+Enter yeni satır)" onkeydown="enterGonder(event)"></textarea>
-        <button id="gonderBtn" onclick="gorevVer()">Çalıştır</button>
+        <textarea id="userPrompt" placeholder="Örn: 'Bütçem 800k TL, hafta sonları offroad için bir SUV arıyorum. AWD şart.'" onkeydown="enterGonder(event)"></textarea>
+        <button id="gonderBtn" onclick="gorevVer()">Sor</button>
       </div>
     </div>
   </div>
@@ -533,6 +533,254 @@
       dosya_oku:  "📖",
       dosya_yaz:  "✏️",
       deploy_army: "◆",
+      pick_car:   "🚗",
+      compare_specs: "⚖️",
+      estimate_ownership_cost: "💰",
+    };
+
+    const CATEGORY_CLASS = {
+      "Daily Driver":  "architect",
+      "Family Hauler": "engineer",
+      "Performance":   "security",
+      "Off-road":      "reviewer",
+      "EV / Hybrid":   "qa",
+      "Luxury":        "architect",
+      "Budget":        "engineer",
+    };
+
+    function renderCarPick(raw) {
+      let data;
+      try { data = JSON.parse(raw); } catch { return null; }
+      if (!data || !Array.isArray(data.candidates)) return null;
+
+      const card = document.createElement("div");
+      card.className = "deploy-card";
+
+      const hdr = document.createElement("div");
+      hdr.className = "deploy-header";
+      const title = document.createElement("div");
+      title.className = "deploy-title";
+      title.textContent = "Araç Önerileri";
+      const meta = document.createElement("div");
+      meta.className = "deploy-meta";
+      const p = data.profile || {};
+      [
+        p.budget && `Bütçe: ${p.budget}`,
+        p.use_case && `Amaç: ${p.use_case}`,
+        `${data.candidates.length} aday`,
+      ].filter(Boolean).forEach(t => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = t;
+        meta.appendChild(c);
+      });
+      hdr.appendChild(title);
+      hdr.appendChild(meta);
+      card.appendChild(hdr);
+
+      if (data.summary) {
+        const s = document.createElement("div");
+        s.className = "deploy-section";
+        s.innerHTML = `<h4>Profil Özeti</h4><p></p>`;
+        s.querySelector("p").textContent = data.summary;
+        card.appendChild(s);
+      }
+      if (data.tradeoffs) {
+        const s = document.createElement("div");
+        s.className = "deploy-section";
+        s.innerHTML = `<h4>Genel Değerlendirme</h4><p></p>`;
+        s.querySelector("p").textContent = data.tradeoffs;
+        card.appendChild(s);
+      }
+
+      const sec = document.createElement("div");
+      sec.className = "deploy-section";
+      const h = document.createElement("h4");
+      h.textContent = "Aday Araçlar";
+      sec.appendChild(h);
+
+      data.candidates.forEach(c => {
+        const row = document.createElement("div");
+        row.className = "deploy-row";
+
+        const badge = document.createElement("span");
+        badge.className = `role-badge ${CATEGORY_CLASS[c.category] || ""}`;
+        badge.textContent = c.category;
+        row.appendChild(badge);
+
+        const mid = document.createElement("div");
+        const t = document.createElement("div");
+        t.className = "deploy-task-title";
+        t.textContent = `#${c.rank} · ${c.make} ${c.model}  ·  ${c.price_estimate}`;
+        const d = document.createElement("div");
+        d.className = "deploy-task-desc";
+        d.textContent = c.why;
+        mid.appendChild(t);
+        mid.appendChild(d);
+
+        const lists = document.createElement("div");
+        lists.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;";
+        const mk = (label, items, color) => {
+          const wrap = document.createElement("div");
+          wrap.innerHTML = `<div style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;color:${color};text-transform:uppercase;margin-bottom:3px;">${label}</div>`;
+          items.forEach(it => {
+            const li = document.createElement("div");
+            li.style.cssText = "font-size:0.75rem;color:#cbd5e1;line-height:1.45;padding-left:10px;position:relative;";
+            li.innerHTML = `<span style="position:absolute;left:0;color:${color};">·</span>`;
+            li.appendChild(document.createTextNode(" " + it));
+            wrap.appendChild(li);
+          });
+          return wrap;
+        };
+        lists.appendChild(mk("Artılar", c.pros || [], "#4ade80"));
+        lists.appendChild(mk("Eksiler", c.cons || [], "#f87171"));
+        mid.appendChild(lists);
+        row.appendChild(mid);
+
+        const fit = document.createElement("div");
+        const fitClass = c.fit === "Strong" ? "low" : c.fit === "Stretch" ? "high" : "medium";
+        fit.className = `complexity ${fitClass}`;
+        fit.textContent = c.fit;
+        row.appendChild(fit);
+
+        sec.appendChild(row);
+      });
+      card.appendChild(sec);
+      return card;
+    }
+
+    function renderCompareSpecs(raw) {
+      let data;
+      try { data = JSON.parse(raw); } catch { return null; }
+      if (!data || !Array.isArray(data.rows)) return null;
+
+      const card = document.createElement("div");
+      card.className = "deploy-card";
+
+      const hdr = document.createElement("div");
+      hdr.className = "deploy-header";
+      hdr.innerHTML = `<div class="deploy-title">Karşılaştırma</div>`;
+      const meta = document.createElement("div");
+      meta.className = "deploy-meta";
+      [data.model_a, "vs", data.model_b].forEach(t => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = t;
+        meta.appendChild(c);
+      });
+      hdr.appendChild(meta);
+      card.appendChild(hdr);
+
+      if (data.verdict) {
+        const s = document.createElement("div");
+        s.className = "deploy-section";
+        s.innerHTML = `<h4>Sonuç</h4><p></p>`;
+        s.querySelector("p").textContent = data.verdict;
+        card.appendChild(s);
+      }
+
+      const sec = document.createElement("div");
+      sec.className = "deploy-section";
+      const table = document.createElement("div");
+      table.style.cssText = "display:grid;grid-template-columns:140px 1fr 1fr;gap:6px 10px;font-size:0.8rem;";
+      const head = (txt, color) => {
+        const d = document.createElement("div");
+        d.textContent = txt;
+        d.style.cssText = `font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${color || "#64748b"};padding-bottom:6px;border-bottom:1px solid #2d3148;`;
+        return d;
+      };
+      table.appendChild(head("Spec"));
+      table.appendChild(head(data.model_a, "#a78bfa"));
+      table.appendChild(head(data.model_b, "#a78bfa"));
+
+      data.rows.forEach(r => {
+        const s = document.createElement("div");
+        s.textContent = r.spec;
+        s.style.cssText = "color:#94a3b8;padding:6px 0;border-bottom:1px dashed #1f2330;";
+        table.appendChild(s);
+        const cell = (txt, win) => {
+          const d = document.createElement("div");
+          d.textContent = txt;
+          const winColor = win ? "color:#4ade80;font-weight:600;" : "color:#e2e8f0;";
+          d.style.cssText = `padding:6px 0;border-bottom:1px dashed #1f2330;${winColor}`;
+          return d;
+        };
+        table.appendChild(cell(r.a, r.winner === "a"));
+        table.appendChild(cell(r.b, r.winner === "b"));
+      });
+      sec.appendChild(table);
+      card.appendChild(sec);
+      return card;
+    }
+
+    function renderOwnershipCost(raw) {
+      let data;
+      try { data = JSON.parse(raw); } catch { return null; }
+      if (!data || !Array.isArray(data.components)) return null;
+
+      const fmt = n => "$" + Math.round(n).toLocaleString();
+
+      const card = document.createElement("div");
+      card.className = "deploy-card";
+
+      const hdr = document.createElement("div");
+      hdr.className = "deploy-header";
+      hdr.innerHTML = `<div class="deploy-title">${data.horizon_years} Yıllık Toplam Sahip Olma Maliyeti</div>`;
+      const meta = document.createElement("div");
+      meta.className = "deploy-meta";
+      [
+        data.model,
+        `${data.category}`,
+        `${data.annual_mileage.toLocaleString()} mi/yıl`,
+      ].forEach(t => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = t;
+        meta.appendChild(c);
+      });
+      hdr.appendChild(meta);
+      card.appendChild(hdr);
+
+      const sec = document.createElement("div");
+      sec.className = "deploy-section";
+      data.components.forEach(comp => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:grid;grid-template-columns:130px 1fr 110px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed #1f2330;";
+        const lbl = document.createElement("div");
+        lbl.textContent = comp.label;
+        lbl.style.cssText = "font-size:0.82rem;color:#cbd5e1;font-weight:600;";
+        const note = document.createElement("div");
+        note.textContent = comp.note;
+        note.style.cssText = "font-size:0.72rem;color:#64748b;";
+        const amt = document.createElement("div");
+        amt.textContent = fmt(comp.amount);
+        amt.style.cssText = "font-family:Menlo,monospace;font-size:0.85rem;color:#fbbf24;text-align:right;";
+        row.appendChild(lbl);
+        row.appendChild(note);
+        row.appendChild(amt);
+        sec.appendChild(row);
+      });
+
+      const total = document.createElement("div");
+      total.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px;margin-top:6px;border-top:2px solid #2d3148;";
+      total.innerHTML = `<span style="font-weight:700;color:#a78bfa;letter-spacing:0.05em;text-transform:uppercase;font-size:0.78rem;">Toplam</span>
+                         <span style="font-family:Menlo,monospace;font-size:1.05rem;color:#4ade80;font-weight:700;">${fmt(data.total)}</span>`;
+      sec.appendChild(total);
+
+      const cpm = document.createElement("div");
+      cpm.style.cssText = "font-size:0.72rem;color:#64748b;text-align:right;margin-top:4px;";
+      cpm.textContent = `~$${data.cost_per_mile.toFixed(3)}/mi  ·  ${data.disclaimer}`;
+      sec.appendChild(cpm);
+
+      card.appendChild(sec);
+      return card;
+    }
+
+    const CUSTOM_RENDERERS = {
+      deploy_army: renderDeployPlan,
+      pick_car: renderCarPick,
+      compare_specs: renderCompareSpecs,
+      estimate_ownership_cost: renderOwnershipCost,
     };
 
     const ROLE_CLASS = {
@@ -798,8 +1046,9 @@
           }
 
           case "tool_result": {
-            if (ev.name === "deploy_army") {
-              const card = renderDeployPlan(ev.result);
+            const renderer = CUSTOM_RENDERERS[ev.name];
+            if (renderer) {
+              const card = renderer(ev.result);
               if (card) { (stepBlock || getMsgs()).appendChild(card); scroll(); break; }
             }
             const wrap = document.createElement("div");

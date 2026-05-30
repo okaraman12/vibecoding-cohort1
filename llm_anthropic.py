@@ -151,6 +151,22 @@ class _Msg:
         self.tool_calls = tool_calls
 
 
+def simple_text(system: str, user: str, model: str = "claude-haiku-4-5",
+                temperature: float = 0.3, max_tokens: int = 2048) -> str:
+    """One-shot text completion (no tools). Returns plain text."""
+    kwargs: dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "messages": [{"role": "user", "content": user}],
+    }
+    if system:
+        kwargs["system"] = system
+    resp = _client().messages.create(**kwargs)
+    parts = [b.text for b in resp.content if getattr(b, "type", None) == "text"]
+    return "\n".join(parts)
+
+
 def call(history: list[dict], tools: list[dict], model: str) -> _Msg:
     """One Anthropic Messages turn. Returns an OpenAI-shaped message object."""
     system, msgs = _convert_messages(history)

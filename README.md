@@ -20,7 +20,33 @@ komutunu çalıştırarak gerekli tüm bağımlılıkları yükleyebilirsiniz.
 
 Proje, arka planda `app.py`, `agent.py`, `asistan.py` ve `llm.py` Python dosyaları ve ön yüzde `frontend` klasöründeki HTML dosyaları ile çalışmaktadır. Her bir bileşen spesifik işlemler için tasarlanmıştır.
 
-## `deploy_army` — Specialized Agent Deployment Tool
+## Domain — Car Advisor (`/agent`)
+
+The agent at **`/agent`** is a **car-buying advisor**. It exposes three domain tools to the tool-calling loop and renders each result as a styled dark-theme card.
+
+### Tools
+
+| Tool | Purpose |
+|---|---|
+| `pick_car(budget, use_case, must_haves, preferences)` | Returns 3–5 ranked candidate cars with category badge (Daily Driver, Family Hauler, Performance, Off-road, EV/Hybrid, Luxury, Budget), fit score (Strong / Good / Stretch), pros, cons, price estimate, and a buyer-profile summary. |
+| `compare_specs(model_a, model_b)` | Side-by-side spec table (engine, horsepower, fuel economy, 0–60, cargo, seating, safety, base price) with a per-row winner indicator. |
+| `estimate_ownership_cost(model, category, msrp, years, annual_mileage, fuel_price)` | Deterministic 5-year TCO breakdown: depreciation, fuel, insurance, maintenance, total, and cost-per-mile. Formula-based, no LLM call. |
+
+### Example
+
+> "Bütçem 800k TL, hafta sonları offroad için bir SUV arıyorum. AWD şart. En iyi 3 adayı önerip, ilk ikisinin 5 yıllık sahip olma maliyetini de göster."
+
+The agent calls `pick_car`, then `estimate_ownership_cost` for each of the top two. The frontend renders a candidate card with category badges and fit pills, followed by two TCO breakdown cards.
+
+### Tech Approach
+
+- **`pick_car` / `compare_specs`** call `gpt-4.1-mini` (or any Claude model via `claude-*` dropdown) with a strict-JSON system prompt. Responses are parsed with a regex-bounded `json.loads` and coerced to a clean schema so malformed model output still yields a renderable card.
+- **`estimate_ownership_cost`** is deterministic: per-category heuristics (depreciation %, mpg-equivalent, insurance class, annual maintenance) feed a simple TCO formula. No LLM call, no API cost, no flakiness.
+- **Frontend** renders each tool result via `CUSTOM_RENDERERS[tool_name]` — clean cards with role-colored badges, complexity/fit pills, and a totals row for TCO.
+
+---
+
+## `deploy_army` — Bonus Tool: Specialized Agent Deployment
 
 `deploy_army` is a first-class tool exposed to the coding agent at `/agent`. Given a free-form task description, it produces a structured deployment plan: a mission summary, a decomposition into 3–6 subtasks, role assignments drawn from a fixed roster of professional titles, a per-subtask complexity rating, a risk assessment, and a strategic dependency graph. When `EXECUTION_MODE=real`, it also delegates each subtask to a Claude Code subprocess scoped to `builds/{task_id}/` and returns the captured output alongside the plan.
 

@@ -28,7 +28,8 @@ DEFINITION = {
 }
 
 _SYSTEM = (
-    "You are an automotive spec analyst. Return STRICT JSON (no prose) with shape:\n"
+    "You are a US-market automotive spec analyst. All prices in USD, US trims and US "
+    "spec figures (mpg, 0-60 mph, lb-ft). Return STRICT JSON (no prose) with shape:\n"
     "{\n"
     '  "model_a": "<name>", "model_b": "<name>",\n'
     '  "verdict": "<1-sentence summary of which wins for whom>",\n'
@@ -38,8 +39,9 @@ _SYSTEM = (
     "    ...\n"
     "  ]\n"
     "}\n"
-    "Include at minimum: Engine, Horsepower, Torque, Fuel Economy, 0-60 mph (or 0-100 km/h), "
-    "Cargo Volume, Seating, Safety Rating, Base Price. Use realistic figures."
+    "Include at minimum: Engine, Horsepower, Torque (lb-ft), Fuel Economy (mpg), 0-60 mph, "
+    "Cargo Volume (cu ft), Seating, Safety Rating (NHTSA or IIHS), Base Price (USD MSRP). "
+    "Use realistic US-spec figures."
 )
 
 

@@ -35,7 +35,7 @@ DEFINITION = {
         "parameters": {
             "type": "object",
             "properties": {
-                "budget":      {"type": "string", "description": "Budget range, e.g. '$25k-$35k' or 'under 800k TL'."},
+                "budget":      {"type": "string", "description": "Budget range in USD, e.g. '$25k-$35k' or 'under $40,000'."},
                 "use_case":    {"type": "string", "description": "Primary use: daily commute, family road trips, weekend off-road, track days, etc."},
                 "must_haves":  {"type": "string", "description": "Hard requirements: AWD, 7 seats, manual, etc. Empty if none."},
                 "preferences": {"type": "string", "description": "Soft preferences: brand, fuel type, body style, color, country of origin, etc."},
@@ -47,21 +47,23 @@ DEFINITION = {
 
 
 _SYSTEM = (
-    "You are a senior automotive advisor. Given a buyer's profile, return STRICT JSON "
+    "You are a senior US-market automotive advisor. Recommend vehicles SOLD IN THE "
+    "UNITED STATES. All prices in USD. Given a buyer's profile, return STRICT JSON "
     "(no prose outside JSON) with this shape:\n"
     "{\n"
     '  "summary": "<one-sentence buyer profile recap>",\n'
-    '  "tradeoffs": "<short paragraph: depreciation, repair cost, insurance, resale>",\n'
+    '  "tradeoffs": "<short paragraph: depreciation, repair cost, insurance, resale -- US market context>",\n'
     '  "candidates": [\n'
-    '    {"rank": 1, "make": "<brand>", "model": "<model + year range>",\n'
+    '    {"rank": 1, "make": "<brand>", "model": "<model + US trim/year range>",\n'
     '     "category": "Daily Driver|Family Hauler|Performance|Off-road|EV / Hybrid|Luxury|Budget",\n'
     '     "fit": "Strong|Good|Stretch",\n'
-    '     "price_estimate": "<approx price range in user\'s currency>",\n'
+    '     "price_estimate": "<USD range, e.g. \\"$28,000-$34,000\\">",\n'
     '     "pros": ["<bullet>", ...], "cons": ["<bullet>", ...],\n'
-    '     "why": "<1-2 sentences on why this fits>"}\n'
+    '     "why": "<1-2 sentences on why this fits the US buyer>"}\n'
     "  ]\n"
     "}\n"
-    "Use 3-5 candidates. Use exact category strings. Rank 1 = best match. Be realistic."
+    "Use 3-5 candidates. Use exact category strings. Rank 1 = best match. Be realistic. "
+    "Only recommend trims/models actually available in the US. Respond in English."
 )
 
 
@@ -74,7 +76,7 @@ def _coerce(raw: str, budget: str, use_case: str) -> dict:
         except json.JSONDecodeError:
             plan = {}
 
-    plan.setdefault("summary", f"Buyer wants a vehicle for {use_case} within {budget}.")
+    plan.setdefault("summary", f"US buyer seeking a vehicle for {use_case} within {budget}.")
     plan.setdefault("tradeoffs", "No tradeoff notes provided.")
     cands = plan.get("candidates") or []
     cleaned = []

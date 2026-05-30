@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Araç Seçici</title>
+  <title>Car Advisor</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -475,8 +475,8 @@
 <body>
   <div class="card">
     <div class="header">
-      <h1>Araç Seçici</h1>
-      <span class="badge">CAR ADVISOR · TOOL USE LOOP</span>
+      <h1>Car Advisor</h1>
+      <span class="badge">US MARKET · TOOL USE LOOP</span>
     </div>
 
     <!-- Kurulum -->
@@ -501,25 +501,25 @@
       </div>
       <div>
         <label for="system">System Instructions</label>
-        <textarea id="system">Sen bir profesyonel araç danışmanısın. Kullanıcının bütçesine, kullanım amacına ve tercihlerine göre araç önerileri yapmak için pick_car, compare_specs ve estimate_ownership_cost araçlarını kullan. Kararını araçların döndürdüğü yapısal verilere dayandır. Türkçe yanıt ver. (Bonus: deploy_army aracı mevcut platform mimarisi için saklanmıştır.)</textarea>
+        <textarea id="system">You are a professional US-market car-buying advisor. Use the pick_car, compare_specs, and estimate_ownership_cost tools to recommend vehicles based on the buyer's budget (in USD), use case, and preferences. Recommend cars and trims sold in the United States. Ground every recommendation in tool output. Respond in English. (Bonus: the deploy_army tool is retained for platform architecture demos.)</textarea>
       </div>
-      <button id="baslatBtn" onclick="agentBaslat()">Agenti Başlat</button>
+      <button id="baslatBtn" onclick="agentBaslat()">Start Advisor</button>
     </div>
 
     <!-- Agent çalışma alanı -->
     <div id="agent-section">
       <div class="session-info">
         <span id="sessionLabel"></span>
-        <button id="yeniBtn" onclick="sifirla()">Yeni Oturum</button>
+        <button id="yeniBtn" onclick="sifirla()">New Session</button>
       </div>
 
       <div id="messages">
-        <span class="empty-hint">Araç danışmanı hazır. Bütçenizi ve ihtiyacınızı yazın.</span>
+        <span class="empty-hint">Advisor ready. Tell me your budget and what you need.</span>
       </div>
 
       <div class="input-row">
-        <textarea id="userPrompt" placeholder="Örn: 'Bütçem 800k TL, hafta sonları offroad için bir SUV arıyorum. AWD şart.'" onkeydown="enterGonder(event)"></textarea>
-        <button id="gonderBtn" onclick="gorevVer()">Sor</button>
+        <textarea id="userPrompt" placeholder="e.g. 'Budget $35k, family daily-driver SUV, AWD required, prefer Japanese brands.'" onkeydown="enterGonder(event)"></textarea>
+        <button id="gonderBtn" onclick="gorevVer()">Ask</button>
       </div>
     </div>
   </div>
@@ -560,14 +560,14 @@
       hdr.className = "deploy-header";
       const title = document.createElement("div");
       title.className = "deploy-title";
-      title.textContent = "Araç Önerileri";
+      title.textContent = "Car Recommendations";
       const meta = document.createElement("div");
       meta.className = "deploy-meta";
       const p = data.profile || {};
       [
-        p.budget && `Bütçe: ${p.budget}`,
-        p.use_case && `Amaç: ${p.use_case}`,
-        `${data.candidates.length} aday`,
+        p.budget && `Budget: ${p.budget}`,
+        p.use_case && `Use: ${p.use_case}`,
+        `${data.candidates.length} candidates`,
       ].filter(Boolean).forEach(t => {
         const c = document.createElement("span");
         c.className = "chip";
@@ -581,14 +581,14 @@
       if (data.summary) {
         const s = document.createElement("div");
         s.className = "deploy-section";
-        s.innerHTML = `<h4>Profil Özeti</h4><p></p>`;
+        s.innerHTML = `<h4>Buyer Profile</h4><p></p>`;
         s.querySelector("p").textContent = data.summary;
         card.appendChild(s);
       }
       if (data.tradeoffs) {
         const s = document.createElement("div");
         s.className = "deploy-section";
-        s.innerHTML = `<h4>Genel Değerlendirme</h4><p></p>`;
+        s.innerHTML = `<h4>Tradeoffs & Notes</h4><p></p>`;
         s.querySelector("p").textContent = data.tradeoffs;
         card.appendChild(s);
       }
@@ -596,7 +596,7 @@
       const sec = document.createElement("div");
       sec.className = "deploy-section";
       const h = document.createElement("h4");
-      h.textContent = "Aday Araçlar";
+      h.textContent = "Candidate Vehicles";
       sec.appendChild(h);
 
       data.candidates.forEach(c => {
@@ -632,8 +632,8 @@
           });
           return wrap;
         };
-        lists.appendChild(mk("Artılar", c.pros || [], "#4ade80"));
-        lists.appendChild(mk("Eksiler", c.cons || [], "#f87171"));
+        lists.appendChild(mk("Pros", c.pros || [], "#4ade80"));
+        lists.appendChild(mk("Cons", c.cons || [], "#f87171"));
         mid.appendChild(lists);
         row.appendChild(mid);
 
@@ -659,7 +659,7 @@
 
       const hdr = document.createElement("div");
       hdr.className = "deploy-header";
-      hdr.innerHTML = `<div class="deploy-title">Karşılaştırma</div>`;
+      hdr.innerHTML = `<div class="deploy-title">Side-by-Side Comparison</div>`;
       const meta = document.createElement("div");
       meta.className = "deploy-meta";
       [data.model_a, "vs", data.model_b].forEach(t => {
@@ -674,7 +674,7 @@
       if (data.verdict) {
         const s = document.createElement("div");
         s.className = "deploy-section";
-        s.innerHTML = `<h4>Sonuç</h4><p></p>`;
+        s.innerHTML = `<h4>Verdict</h4><p></p>`;
         s.querySelector("p").textContent = data.verdict;
         card.appendChild(s);
       }
@@ -725,13 +725,13 @@
 
       const hdr = document.createElement("div");
       hdr.className = "deploy-header";
-      hdr.innerHTML = `<div class="deploy-title">${data.horizon_years} Yıllık Toplam Sahip Olma Maliyeti</div>`;
+      hdr.innerHTML = `<div class="deploy-title">${data.horizon_years}-Year Total Cost of Ownership</div>`;
       const meta = document.createElement("div");
       meta.className = "deploy-meta";
       [
         data.model,
         `${data.category}`,
-        `${data.annual_mileage.toLocaleString()} mi/yıl`,
+        `${data.annual_mileage.toLocaleString()} mi/yr`,
       ].forEach(t => {
         const c = document.createElement("span");
         c.className = "chip";
@@ -763,7 +763,7 @@
 
       const total = document.createElement("div");
       total.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px;margin-top:6px;border-top:2px solid #2d3148;";
-      total.innerHTML = `<span style="font-weight:700;color:#a78bfa;letter-spacing:0.05em;text-transform:uppercase;font-size:0.78rem;">Toplam</span>
+      total.innerHTML = `<span style="font-weight:700;color:#a78bfa;letter-spacing:0.05em;text-transform:uppercase;font-size:0.78rem;">Total</span>
                          <span style="font-family:Menlo,monospace;font-size:1.05rem;color:#4ade80;font-weight:700;">${fmt(data.total)}</span>`;
       sec.appendChild(total);
 
@@ -905,7 +905,7 @@
       const btn = document.getElementById("baslatBtn");
 
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>Başlatılıyor...';
+      btn.innerHTML = '<span class="spinner"></span>Starting...';
 
       try {
         const res = await fetch("/api/agent/yeni", {
@@ -927,7 +927,7 @@
       } catch (err) {
         alert("Agent başlatılamadı: " + err.message);
         btn.disabled = false;
-        btn.textContent = "Agenti Başlat";
+        btn.textContent = "Start Advisor";
       }
     }
 
@@ -986,7 +986,7 @@
         ekleHata(err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Çalıştır";
+        btn.textContent = "Ask";
         promptEl.focus();
       }
 
@@ -1001,7 +1001,7 @@
 
             const lbl = document.createElement("div");
             lbl.className = "step-label";
-            lbl.textContent = `Adım ${stepCount}`;
+            lbl.textContent = `Step ${stepCount}`;
             stepBlock.appendChild(lbl);
 
             getMsgs().appendChild(stepBlock);
@@ -1057,7 +1057,7 @@
             const icon = TOOL_ICONS[ev.name] || "🔧";
             const hdr = document.createElement("div");
             hdr.className = "tool-result-header";
-            hdr.innerHTML = `<span>✓</span> ${icon} ${ev.name} sonucu`;
+            hdr.innerHTML = `<span>✓</span> ${icon} ${ev.name} result`;
             wrap.appendChild(hdr);
 
             const body = document.createElement("div");
@@ -1111,7 +1111,7 @@
     function ekleHata(mesaj) {
       const div = document.createElement("div");
       div.className = "error-box";
-      div.textContent = "Hata: " + mesaj;
+      div.textContent = "Error: " + mesaj;
       getMsgs().appendChild(div);
       scroll();
     }
@@ -1131,7 +1131,7 @@
 
     function sifirla() {
       sessionId = null;
-      getMsgs().innerHTML = '<span class="empty-hint">Agent hazır. Bir görev verin.</span>';
+      getMsgs().innerHTML = '<span class="empty-hint">Advisor ready. Tell me your budget and what you need.</span>';
       document.getElementById("agent-section").style.display = "none";
       const setup = document.getElementById("setup-section");
       setup.style.display = "flex";

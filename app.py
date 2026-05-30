@@ -107,8 +107,9 @@ def agent_yeni():
     data = request.get_json(silent=True) or {}
     system_instructions = data.get(
         "system_instructions",
-        "Sen bir profesyonel araç danışmanısın. Kullanıcının ihtiyacına göre "
-        "pick_car, compare_specs ve estimate_ownership_cost araçlarını kullan.",
+        "You are a professional US-market car-buying advisor. Use the pick_car, "
+        "compare_specs, and estimate_ownership_cost tools to recommend vehicles "
+        "sold in the United States. All prices in USD.",
     )
     model = data.get("model", "gpt-4.1-mini")
 

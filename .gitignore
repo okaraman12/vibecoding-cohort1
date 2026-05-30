@@ -60,3 +60,6 @@ logs/
 
 # Agent runner build artifacts (per-task workspaces + audit log)
 builds/
+
+# Personal class materials (lecture transcripts, recordings, classmate chat)
+lesson_resources/

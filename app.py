@@ -7,7 +7,13 @@ from agent import Agent
 
 app = Flask(__name__, static_folder="frontend")
 
-ALLOWED_MODELS = {"gpt-4.1-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini"}
+ALLOWED_MODELS = {
+    # OpenAI
+    "gpt-4.1-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini",
+    # Anthropic (routed in agent.py when prefix == "claude-")
+    "claude-sonnet-4-5", "claude-opus-4-1", "claude-haiku-4-5",
+    "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest",
+}
 
 # Aktif asistan oturumları: session_id -> Asistan nesnesi
 _asistanlar: dict[str, Asistan] = {}

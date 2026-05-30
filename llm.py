@@ -1,10 +1,13 @@
+import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from typing import Iterator
 
 load_dotenv()
 
-client = OpenAI()
+# Lazy: only construct the OpenAI client if a key is actually present, so the
+# app can run in Claude-only mode without an OPENAI_API_KEY.
+client = OpenAI() if os.environ.get("OPENAI_API_KEY") else None
 
 
 def stream_llm(

@@ -57,3 +57,6 @@ desktop.ini
 # Loglar
 *.log
 logs/
+
+# Agent runner build artifacts (per-task workspaces + audit log)
+builds/

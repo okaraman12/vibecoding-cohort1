@@ -340,6 +340,132 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Deploy Army deployment plan card ──────────── */
+    .deploy-card {
+      background: linear-gradient(180deg, #131725 0%, #0f1117 100%);
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+    }
+    .deploy-header {
+      padding: 14px 16px;
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3148;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .deploy-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #a78bfa;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .deploy-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .deploy-meta .chip {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: #1e1b4b;
+      color: #c4b5fd;
+      border: 1px solid #312e81;
+      letter-spacing: 0.04em;
+    }
+    .deploy-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1f2330;
+    }
+    .deploy-section:last-child { border-bottom: none; }
+    .deploy-section h4 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .deploy-section p {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+    .deploy-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 80px;
+      gap: 12px;
+      align-items: start;
+      padding: 10px 0;
+      border-bottom: 1px dashed #1f2330;
+    }
+    .deploy-row:last-child { border-bottom: none; }
+    .role-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: #1e1b4b;
+      color: #c4b5fd;
+      border: 1px solid #4338ca;
+      white-space: nowrap;
+    }
+    .role-badge.architect { background: #0c1828; color: #93c5fd; border-color: #1e40af; }
+    .role-badge.engineer { background: #0c1e12; color: #86efac; border-color: #166534; }
+    .role-badge.reviewer { background: #1c1400; color: #fcd34d; border-color: #854d0e; }
+    .role-badge.security { background: #1f0a0a; color: #fca5a5; border-color: #7f1d1d; }
+    .role-badge.qa { background: #0a1a1e; color: #67e8f9; border-color: #155e75; }
+    .deploy-task-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 3px;
+    }
+    .deploy-task-desc {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .deploy-task-deps {
+      font-size: 0.68rem;
+      color: #64748b;
+      margin-top: 4px;
+      font-family: "Menlo", monospace;
+    }
+    .complexity {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 4px 0;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .complexity.low { background: #0c1e12; color: #4ade80; border: 1px solid #166534; }
+    .complexity.medium { background: #1c1400; color: #fbbf24; border: 1px solid #854d0e; }
+    .complexity.high { background: #1f0a0a; color: #f87171; border: 1px solid #7f1d1d; }
+
+    .exec-block {
+      margin-top: 6px;
+      background: #0a0d14;
+      border: 1px solid #1f2330;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: "Menlo", "Consolas", monospace;
+      font-size: 0.72rem;
+      color: #86efac;
+      white-space: pre-wrap;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -358,10 +484,19 @@
       <div>
         <label for="model">Model</label>
         <select id="model">
-          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-          <option value="gpt-4.1">gpt-4.1</option>
-          <option value="gpt-4o">gpt-4o</option>
-          <option value="gpt-4o-mini">gpt-4o-mini</option>
+          <optgroup label="Anthropic (Claude OAuth / API)">
+            <option value="claude-sonnet-4-5">claude-sonnet-4-5</option>
+            <option value="claude-opus-4-1">claude-opus-4-1</option>
+            <option value="claude-haiku-4-5">claude-haiku-4-5</option>
+            <option value="claude-3-5-sonnet-latest">claude-3-5-sonnet-latest</option>
+            <option value="claude-3-5-haiku-latest">claude-3-5-haiku-latest</option>
+          </optgroup>
+          <optgroup label="OpenAI">
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+            <option value="gpt-4.1">gpt-4.1</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+          </optgroup>
         </select>
       </div>
       <div>
@@ -397,7 +532,123 @@
       terminal:   "⚡",
       dosya_oku:  "📖",
       dosya_yaz:  "✏️",
+      deploy_army: "◆",
     };
+
+    const ROLE_CLASS = {
+      "Lead Architect":  "architect",
+      "Senior Engineer": "engineer",
+      "Code Reviewer":   "reviewer",
+      "Security Analyst":"security",
+      "QA Specialist":   "qa",
+    };
+
+    function renderDeployPlan(raw) {
+      let plan;
+      try { plan = JSON.parse(raw); } catch { return null; }
+      if (!plan || !Array.isArray(plan.subtasks)) return null;
+
+      const card = document.createElement("div");
+      card.className = "deploy-card";
+
+      // Header
+      const hdr = document.createElement("div");
+      hdr.className = "deploy-header";
+      const title = document.createElement("div");
+      title.className = "deploy-title";
+      title.textContent = "Deployment Plan";
+      const meta = document.createElement("div");
+      meta.className = "deploy-meta";
+      const chips = [
+        `Task ${plan.task_id || "—"}`,
+        `Mode: ${plan.execution_mode || "simulation"}`,
+        `${plan.subtasks.length} subtasks`,
+      ];
+      if (plan.execute) chips.push("Executed");
+      chips.forEach(t => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = t;
+        meta.appendChild(c);
+      });
+      hdr.appendChild(title);
+      hdr.appendChild(meta);
+      card.appendChild(hdr);
+
+      // Mission summary
+      if (plan.mission_summary) {
+        const s = document.createElement("div");
+        s.className = "deploy-section";
+        s.innerHTML = `<h4>Mission Summary</h4><p></p>`;
+        s.querySelector("p").textContent = plan.mission_summary;
+        card.appendChild(s);
+      }
+
+      // Risk assessment
+      if (plan.risk_assessment) {
+        const s = document.createElement("div");
+        s.className = "deploy-section";
+        s.innerHTML = `<h4>Risk Assessment</h4><p></p>`;
+        s.querySelector("p").textContent = plan.risk_assessment;
+        card.appendChild(s);
+      }
+
+      // Subtasks
+      const sub = document.createElement("div");
+      sub.className = "deploy-section";
+      const subH = document.createElement("h4");
+      subH.textContent = "Role Assignments";
+      sub.appendChild(subH);
+
+      const results = (plan.execution_results || []).reduce((m, r) => {
+        m[r.subtask_id] = r; return m;
+      }, {});
+
+      plan.subtasks.forEach(st => {
+        const row = document.createElement("div");
+        row.className = "deploy-row";
+
+        const badge = document.createElement("span");
+        badge.className = `role-badge ${ROLE_CLASS[st.role] || ""}`;
+        badge.textContent = st.role;
+        row.appendChild(badge);
+
+        const mid = document.createElement("div");
+        const t = document.createElement("div");
+        t.className = "deploy-task-title";
+        t.textContent = `${st.id} · ${st.title}`;
+        const d = document.createElement("div");
+        d.className = "deploy-task-desc";
+        d.textContent = st.description;
+        mid.appendChild(t);
+        mid.appendChild(d);
+        if (st.depends_on && st.depends_on.length) {
+          const dep = document.createElement("div");
+          dep.className = "deploy-task-deps";
+          dep.textContent = `depends on: ${st.depends_on.join(", ")}`;
+          mid.appendChild(dep);
+        }
+        const r = results[st.id];
+        if (r) {
+          const ex = document.createElement("div");
+          ex.className = "exec-block";
+          ex.textContent = `[${r.status} · ${r.mode} · ${r.duration_seconds}s]\n${r.output}`;
+          mid.appendChild(ex);
+        }
+        row.appendChild(mid);
+
+        const cx = document.createElement("div");
+        const cKey = (st.complexity || "Medium").toLowerCase();
+        cx.className = `complexity ${cKey}`;
+        cx.textContent = st.complexity || "Medium";
+        row.appendChild(cx);
+
+        sub.appendChild(row);
+      });
+      card.appendChild(sub);
+
+      return card;
+    }
 
     // ── Başlat ─────────────────────────────────────────────
     async function agentBaslat() {
@@ -547,6 +798,10 @@
           }
 
           case "tool_result": {
+            if (ev.name === "deploy_army") {
+              const card = renderDeployPlan(ev.result);
+              if (card) { (stepBlock || getMsgs()).appendChild(card); scroll(); break; }
+            }
             const wrap = document.createElement("div");
             wrap.className = "tool-result-box";
 

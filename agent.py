@@ -4,6 +4,8 @@ import subprocess
 from typing import Iterator
 
 from llm import client
+import llm_anthropic
+from tools import TOOL_DEFINITIONS, TOOL_FUNCTIONS
 
 AGENT_WORKSPACE = "/tmp/agent_workspace"
 
@@ -100,7 +102,11 @@ _TOOL_MAP = {
     "terminal": lambda a: _terminal(a["command"]),
     "dosya_oku": lambda a: _dosya_oku(a["yol"]),
     "dosya_yaz": lambda a: _dosya_yaz(a["yol"], a["icerik"]),
+    **TOOL_FUNCTIONS,
 }
+
+# Merge specialized tool definitions (deploy_army, ...) into the schema list.
+TOOLS.extend(TOOL_DEFINITIONS)
 
 
 class Agent:
@@ -132,14 +138,16 @@ class Agent:
             step += 1
             yield {"type": "step_start", "step": step}
 
-            response = client.chat.completions.create(
-                model=self.model,
-                messages=self.history,
-                tools=TOOLS,
-                tool_choice="auto",
-            )
-
-            msg = response.choices[0].message
+            if self.model.startswith("claude-"):
+                msg = llm_anthropic.call(self.history, TOOLS, self.model)
+            else:
+                response = client.chat.completions.create(
+                    model=self.model,
+                    messages=self.history,
+                    tools=TOOLS,
+                    tool_choice="auto",
+                )
+                msg = response.choices[0].message
 
             # History'e eklenecek asistan mesajı
             history_msg: dict = {"role": "assistant"}

@@ -49,7 +49,13 @@ Flask backend + vanilla JS frontend. Üç ayrı sayfa sunar:
 - **`app.py`** — Flask uygulaması. Routing, model doğrulaması, asistan ve agent oturum yönetimi.
 - **`llm.py`** — OpenAI istemcisi kurulumu ve `stream_llm()` fonksiyonu. Tek seferlik, history'siz.
 - **`asistan.py`** — `Asistan` sınıfı. Conversation history tutan, `sohbet()` ve `stream_sohbet()` metodları.
-- **`agent.py`** — `Agent` sınıfı. Tool-calling agentic loop; `calistir()` generator'ı her adımda event dict'i yield eder. Tool'lar: `terminal`, `dosya_oku`, `dosya_yaz`.
+- **`agent.py`** — `Agent` sınıfı. Tool-calling agentic loop; `calistir()` generator'ı her adımda event dict'i yield eder. Tool'lar: `terminal`, `dosya_oku`, `dosya_yaz`, ve `tools/` paketinden gelen `deploy_army`.
+- **`tools/__init__.py`** — Özel araç paketi. `TOOL_DEFINITIONS` ve `TOOL_FUNCTIONS` sözlüklerini dışa açar; `agent.py` bunları `TOOLS` / `_TOOL_MAP`'e merge eder.
+- **`tools/deploy_army.py`** — Bir görevi alt görevlere ayırır, rol atar (Lead Architect, Senior Engineer, Code Reviewer, Security Analyst, QA Specialist), karmaşıklık ve risk değerlendirmesi içeren JSON deployment plan döner. `execute=true` ise `agent_runner` üzerinden alt görevleri gerçekten çalıştırır.
+- **`tools/agent_runner.py`** — Agent Army'den uyarlanmış subprocess runner. `EXECUTION_MODE` ortam değişkenine göre `simulation` (default, güvenli), `real` (Claude Code CLI'yi `builds/{task_id}/` cwd'de çalıştırır) veya `sandbox` (Docker container spec) modunda çalışır.
+- **`tools/security.py`** — Env allowlist + Docker container spec builder (read-only root, `--network=none`, mem/cpu/PID limit). `sandbox` mode için hazır; Docker SDK çağrısı bu harness'ta kasıtlı olarak bağlanmadı.
+- **`tools/audit_log.py`** — `builds/audit.log` dosyasına JSONL append. Her execution için: rol, mode, env key **adları** (değerleri asla), süre, exit code, status.
+- **`SECURITY.md`** — Execution model dokümantasyonu, threat model, audit log şeması.
 - **`frontend/index.html`** — LLM arayüzü. Tek prompt → tek yanıt.
 - **`frontend/asistan.html`** — Sohbet arayüzü. Baloncuklu, çok turlu, session tabanlı.
 - **`frontend/agent.html`** — Agent arayüzü. Her adımı, tool call'ları, sonuçlarını ve thinking text'ini görsel olarak gösterir.

@@ -25,6 +25,14 @@ app.py                  # Flask uygulaması; routing, doğrulama, oturum yöneti
 llm.py                  # OpenAI istemcisi; hafızasız stream_llm() fonksiyonu
 asistan.py              # Asistan sınıfı; conversation history + stream_sohbet()
 agent.py                # Agent sınıfı; tool-calling agentic loop + calistir() generator
+tools/
+  __init__.py           # TOOL_DEFINITIONS / TOOL_FUNCTIONS — agent.py'a merge edilir
+  deploy_army.py        # Görev decomposition + rol atama + opsiyonel execution
+  agent_runner.py       # Subprocess runner (simulation / real / sandbox modes)
+  security.py           # Env allowlist + Docker container spec builder
+  audit_log.py          # builds/audit.log JSONL append-only audit log
+SECURITY.md             # Execution model, threat model, audit log şeması
+builds/                 # Per-task çalışma dizinleri + audit.log (gitignore önerilir)
 frontend/
   index.html            # LLM arayüzü: tek seferlik prompt/yanıt sayfası
   asistan.html          # Asistan arayüzü: çok turlu, baloncuklu sohbet sayfası
